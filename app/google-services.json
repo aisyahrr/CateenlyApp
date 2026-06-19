@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "26592520216",
+    "project_id": "canteenly-app",
+    "storage_bucket": "canteenly-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:26592520216:android:83c2a473f2c1ab53efbb6d",
+        "android_client_info": {
+          "package_name": "com.example.canteenlyapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBuxqcBtM2X9Uo3Nqdck-yjoqYHYTRaOu0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
