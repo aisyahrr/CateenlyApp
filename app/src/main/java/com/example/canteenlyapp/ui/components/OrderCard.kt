@@ -258,11 +258,7 @@ fun OrderCard(
                     ) {
 
                         Text(
-                            text =
-                                if (isHistory)
-                                    "Review"
-                                else
-                                    "Order Details",
+                            text = "Order Details",
                             fontSize = 11.sp
                         )
                     }
@@ -279,25 +275,25 @@ fun OrderCard(
 }
 
 @Composable
-private fun StatusBadge(
+fun StatusBadge(
     status: String,
     modifier: Modifier = Modifier
 ) {
 
-    val bgColor = when (status) {
-        "Preparing" -> Color(0xFFFFE0B2)
-        "On The Way" -> Color(0xFFC8E6C9)
-        "Ready Pickup" -> Color(0xFFBBDEFB)
-        "Done" -> Color(0xFFC8E6C9)
-        else -> Color.LightGray
+    val textColor = when (status) {
+        "Preparing" -> Color(0xFFFF9800)     // orange
+        "On The Way" -> Color(0xFF2196F3)    // blue
+        "Ready Pickup" -> Color(0xFF9C27B0)  // purple
+        "Done" -> Color(0xFF4CAF50)          // green
+        else -> Color.Gray
     }
 
-    val textColor = when (status) {
-        "Preparing" -> Color(0xFFFF9800)
-        "On The Way" -> Color(0xFF4CAF50)
-        "Ready Pickup" -> Color(0xFF2196F3)
-        "Done" -> Color(0xFF4CAF50)
-        else -> Color.Gray
+    val bgColor = when (status) {
+        "Preparing" -> Color(0xFFFFE0B2)     // orange muda
+        "On The Way" -> Color(0xFFBBDEFB)    // blue muda
+        "Ready Pickup" -> Color(0xFFE1BEE7)  // purple muda
+        "Done" -> Color(0xFFC8E6C9)          // green muda
+        else -> Color.LightGray
     }
 
     Box(

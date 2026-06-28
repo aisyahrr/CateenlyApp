@@ -9,7 +9,8 @@ data class User(
     val phoneNumber: String = "",
     val address: String = "",
     val role: String = "customer",
-    val active: Boolean = true,  // ← ganti dari isActive ke active
+    val canteenId: String = "",
+    val active: Boolean = true,
     val createdAt: Long = 0L
 )
 data class UserPoint(

@@ -5,14 +5,19 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.canteenlyapp.ui.screen.Canteen.CanteenDetailScreen
+import com.example.canteenlyapp.ui.screen.Merchant.MerchantScreen
+import com.example.canteenlyapp.ui.screen.OrderDetails.CustomerOrderDetailScreen
+import com.example.canteenlyapp.ui.screen.OrderDetails.MerchantOrderDetailScreen
 import com.example.canteenlyapp.ui.screen.Orders.OrdersScreen
 import com.example.canteenlyapp.ui.screen.auth.LoginScreen
 import com.example.canteenlyapp.ui.screen.auth.RegisterScreen
 import com.example.canteenlyapp.ui.screen.checkout.CheckoutScreen
 import com.example.canteenlyapp.ui.screen.home.HomeScreen
 import com.example.canteenlyapp.ui.screen.main.MainScreen
+import com.example.canteenlyapp.ui.screen.notifikasi.NotificationListScreen
 import com.example.canteenlyapp.ui.screen.onboarding.OnboardingScreen
 import com.example.canteenlyapp.ui.screen.order.OrderSuccessScreen
+import com.example.canteenlyapp.ui.screen.payment.QrisPaymentScreen
 import com.example.canteenlyapp.ui.screen.splash.SplashScreen
 @Composable
 fun NavGraph() {
@@ -63,10 +68,15 @@ fun NavGraph() {
             )
         }
         composable(
-            Screen.OrderSuccess.route
+            route = Screen.OrderSuccess.route
         ) {
+
+            val orderId =
+                it.arguments?.getString("orderId") ?: ""
+
             OrderSuccessScreen(
-                navController = navController
+                navController = navController,
+                orderId = orderId
             )
         }
         composable(
@@ -75,6 +85,36 @@ fun NavGraph() {
             OrdersScreen(
                 navController = navController
             )
+        }
+        composable(
+            route = Screen.Merchant.route
+        ) {
+            MerchantScreen(
+                navController = navController
+            )
+        }
+        composable(
+            route = Screen.CustomerOrderDetail.route
+        ) {
+
+            val orderId =
+                it.arguments?.getString("orderId") ?: ""
+
+            CustomerOrderDetailScreen(
+                navController = navController,
+                orderId = orderId
+            )
+        }
+        composable("merchant_order_detail/{orderId}") { backStackEntry ->
+            val orderId = backStackEntry.arguments?.getString("orderId") ?: ""
+            MerchantOrderDetailScreen(navController, orderId)
+        }
+        composable("notifications") {
+            NotificationListScreen(navController = navController)
+        }
+        composable(Screen.QrisPayment.route) { backStackEntry ->
+            val orderId = backStackEntry.arguments?.getString("orderId") ?: ""
+            QrisPaymentScreen(navController = navController, orderId = orderId)
         }
 
     }

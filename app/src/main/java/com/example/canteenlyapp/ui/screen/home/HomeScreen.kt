@@ -1,9 +1,11 @@
 package com.example.canteenlyapp.ui.screen.home
 
+import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,6 +23,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.NotificationsNone
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import com.example.canteenlyapp.ui.components.SearchBar
@@ -48,6 +52,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import coil.compose.AsyncImage
 import com.example.canteenlyapp.data.dummy.CategoryDummy
+import com.example.canteenlyapp.data.model.AppNotification
 import com.example.canteenlyapp.data.model.CartItem
 import com.example.canteenlyapp.ui.components.CategoryItem
 import com.example.canteenlyapp.ui.components.MenuCard
@@ -56,8 +61,10 @@ import com.example.canteenlyapp.data.model.MenuOptionGroup
 import com.example.canteenlyapp.data.model.User
 import com.example.canteenlyapp.data.repository.AuthRepository
 import com.example.canteenlyapp.data.repository.CartRepository
+import com.example.canteenlyapp.data.repository.NotificationRepository
 import com.example.canteenlyapp.ui.components.CartBottomSheet
 import com.example.canteenlyapp.ui.components.getInitials
+import com.example.canteenlyapp.utils.NotificationHelper
 import com.example.canteenlyapp.utils.getMenuImage
 
 
@@ -87,7 +94,7 @@ fun HomeContent(navController: NavController) {
         remember {
             mutableStateListOf<Canteen>()
         }
-
+    val context = LocalContext.current
     val categories = CategoryDummy.categories
     var selectedCategory by remember {
         mutableStateOf("All")
@@ -134,6 +141,36 @@ fun HomeContent(navController: NavController) {
     var user by remember {
         mutableStateOf<User?>(null)
     }
+    var notifications by remember { mutableStateOf<List<AppNotification>>(emptyList()) }
+    var userId by remember { mutableStateOf("") }
+
+    val knownNotifIds = remember { mutableStateListOf<String>() }
+    var firstNotifLoad by remember { mutableStateOf(true) }
+
+    LaunchedEffect(Unit) {
+        val user = authRepository.getCurrentUser()
+        user?.let {
+            userId = it.uid
+            NotificationRepository.listenNotifications(it.uid) { list ->
+                if (!firstNotifLoad) {
+                    list.filter { n -> n.id !in knownNotifIds }.forEach { n ->
+                        NotificationHelper.show(
+                            context = context,
+                            id = n.id.hashCode(),
+                            title = n.title,
+                            message = n.message
+                        )
+                    }
+                }
+                knownNotifIds.clear()
+                knownNotifIds.addAll(list.map { n -> n.id })
+                firstNotifLoad = false
+                notifications = list
+            }
+        }
+    }
+
+    val unread = notifications.count { !it.read }
     LaunchedEffect(Unit) {
         repository.getCanteens { result ->
             canteens.clear()
@@ -203,19 +240,38 @@ fun HomeContent(navController: NavController) {
                 )
             }
 
-            Box(
-                modifier = Modifier
-                    .size(35.dp)
-                    .clip(CircleShape)
-                    .background(Color(0xFF2B313C)),
-                contentAlignment = Alignment.Center
-            ){
-                Icon(
-                    imageVector = Icons.Default.NotificationsNone,
-                    contentDescription = "Notification",
-                    tint = Color.White
-
-                )
+            BadgedBox(
+                badge = {
+                    if (unread > 0) {
+                        Badge(
+                            containerColor = Color(0xFFFF9800),
+                            contentColor = Color.White
+                        ) {
+                            Text(
+                                text = if (unread > 9) "9+" else "$unread",
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                }
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(35.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFF2B313C))
+                        .clickable {
+                            navController.navigate("notifications")
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.NotificationsNone,
+                        contentDescription = "Notification",
+                        tint = Color.White
+                    )
+                }
             }
         }
         Spacer(modifier = Modifier.height(20.dp))
@@ -334,6 +390,7 @@ fun HomeContent(navController: NavController) {
                         canteenId = menu.canteenId,
                         canteenName = canteen?.title ?: "",
                         canteenImageKey = canteen?.imageKey ?: "",
+                        canteenAddress = canteen?.address ?: "",
                         name = menu.name,
                         imageKey = menu.imageKey,
                         price = menu.price,
@@ -342,6 +399,12 @@ fun HomeContent(navController: NavController) {
                         selectedOptions = selectedOptions
                     )
                 )
+
+                Toast.makeText(
+                    context,
+                    "${menu.name} added to cart 🛒",
+                    Toast.LENGTH_SHORT
+                ).show()
 
                 showCartSheet = false
             }

@@ -270,14 +270,24 @@ fun LoginScreen(
 
                                 isLoading = false
 
+                                val user =
+                                    repository.getCurrentUser()
+
                                 Toast.makeText(
                                     context,
                                     "Login Success",
                                     Toast.LENGTH_SHORT
                                 ).show()
 
+                                val destination =
+                                    if (user?.role == "merchant")
+                                        Screen.Merchant
+                                            .route
+                                    else
+                                        Screen.Main.route
+
                                 navController.navigate(
-                                    Screen.Main.route
+                                    destination
                                 ) {
 
                                     popUpTo(

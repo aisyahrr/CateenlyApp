@@ -31,6 +31,7 @@ import com.example.canteenlyapp.data.model.User
 import com.example.canteenlyapp.ui.components.ProfileSection
 import androidx.navigation.compose.rememberNavController
 import com.example.canteenlyapp.data.repository.AuthRepository
+import com.example.canteenlyapp.data.repository.OrderRepository
 import com.example.canteenlyapp.ui.components.AccountMenu
 import com.example.canteenlyapp.ui.components.AccountSection
 import com.example.canteenlyapp.ui.components.EditProfileBottomSheet
@@ -48,6 +49,7 @@ import com.example.canteenlyapp.ui.navigation.Screen
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.runtime.mutableIntStateOf
 
 @Preview(
     showBackground = true,
@@ -64,8 +66,9 @@ fun AccountScreenPreview() {
 }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AccountScreen(navController: NavHostController)
-{
+fun AccountScreen(
+    navController: NavHostController
+) {
     val authRepository = remember { AuthRepository() }
     val scope = rememberCoroutineScope()
 
@@ -73,18 +76,34 @@ fun AccountScreen(navController: NavHostController)
         mutableStateOf<User?>(null)
     }
 
+    var totalOrders by remember {
+        mutableIntStateOf(0)
+    }
+
     LaunchedEffect(Unit) {
         currentUser = authRepository.getCurrentUser()
     }
+
+    LaunchedEffect(currentUser?.uid) {
+        currentUser?.uid?.let { uid ->
+            OrderRepository.getTotalOrdersByUser(uid) { total ->
+                totalOrders = total
+            }
+        }
+    }
+
     var showEditProfile by remember {
         mutableStateOf(false)
     }
+
     var selectedImageUri by remember {
         mutableStateOf<Uri?>(null)
     }
+
     var showAddressSheet by remember {
         mutableStateOf(false)
     }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -112,9 +131,9 @@ fun AccountScreen(navController: NavHostController)
 
             item {
                 PointSummaryCard(
-                    points = "Rp. 20.000",
-                    totalOrder = 2,
-                    totalCoupon = 0
+                    points = "20 Points",
+                    totalOrder = totalOrders,
+                    memberLevel = "Bronze"
                 )
             }
             item {

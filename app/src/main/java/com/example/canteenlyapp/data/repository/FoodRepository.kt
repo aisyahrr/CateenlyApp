@@ -3,14 +3,16 @@ package com.example.canteenlyapp.data.repository
 import com.example.canteenlyapp.data.model.Canteen
 import com.example.canteenlyapp.data.model.Menu
 import com.example.canteenlyapp.data.model.MenuOptionGroup
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
+import kotlinx.coroutines.tasks.await
 
 class FoodRepository {
-
+    private val food = FirebaseAuth.getInstance()
     private val database =
         FirebaseDatabase
             .getInstance()
@@ -38,19 +40,24 @@ class FoodRepository {
 
                     for (item in snapshot.children) {
 
-                        val canteen =
-                            item.getValue(Canteen::class.java)
+                        item.getValue(Canteen::class.java)
+                            ?.let { canteen ->
 
-                        if (canteen != null) {
-                            list.add(canteen)
-                        }
+                                val fixedCanteen = canteen.copy(
+                                    isAvailable =
+                                        item.child("isAvailable")
+                                            .getValue(Boolean::class.java)
+                                            ?: false
+                                )
+
+                                list.add(fixedCanteen)
+                            }
                     }
 
                     onResult(list)
                 }
 
-                override fun onCancelled(error: DatabaseError) {
-                }
+                override fun onCancelled(error: DatabaseError) {}
             }
         )
     }
@@ -84,6 +91,25 @@ class FoodRepository {
                     }
                 }
             )
+    }
+    suspend fun updateAddress(
+        canteenId: String,
+        address: String
+    ): Result<Unit> {
+
+        return try {
+
+            database
+                .child(canteenId)
+                .child("address")
+                .setValue(address)
+                .await()
+
+            Result.success(Unit)
+
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
     fun getMenus(
         onResult: (List<Menu>) -> Unit
@@ -161,6 +187,89 @@ class FoodRepository {
                     }
                 }
             )
+    }
+    fun getMenusByCanteenId(
+        canteenId: String,
+        onResult: (List<Menu>) -> Unit
+    ) {
+
+        menuDatabase
+            .orderByChild("canteenId")
+            .equalTo(canteenId)
+            .addValueEventListener(
+
+                object : ValueEventListener {
+
+                    override fun onDataChange(
+                        snapshot: DataSnapshot
+                    ) {
+
+                        val menus =
+                            mutableListOf<Menu>()
+
+                        snapshot.children.forEach { item ->
+
+                            item.getValue(Menu::class.java)
+                                ?.let { menu ->
+                                    menus.add(menu)
+                                }
+                        }
+
+                        onResult(
+                            menus.sortedByDescending {
+                                it.createdAt
+                            }
+                        )
+                    }
+
+                    override fun onCancelled(
+                        error: DatabaseError
+                    ) {
+
+                        onResult(emptyList())
+                    }
+                }
+            )
+    }
+    fun getTotalMenusByCanteen(
+        canteenId: String,
+        onResult: (Int) -> Unit
+    ) {
+
+        menuDatabase
+            .orderByChild("canteenId")
+            .equalTo(canteenId)
+            .addListenerForSingleValueEvent(
+
+                object : ValueEventListener {
+
+                    override fun onDataChange(
+                        snapshot: DataSnapshot
+                    ) {
+
+                        onResult(
+                            snapshot.childrenCount.toInt()
+                        )
+                    }
+
+                    override fun onCancelled(
+                        error: DatabaseError
+                    ) {
+
+                        onResult(0)
+                    }
+                }
+            )
+    }
+    fun setCanteenAvailability(
+        canteenId: String,
+        isAvailable: Boolean,
+        onResult: (Boolean) -> Unit = {}
+    ) {
+        database.child(canteenId).child("isAvailable")
+            .setValue(isAvailable)
+            .addOnSuccessListener { onResult(true) }
+            .addOnFailureListener { onResult(false) }
     }
 }
 

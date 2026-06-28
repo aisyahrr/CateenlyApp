@@ -5,6 +5,7 @@ data class CartItem(
     val canteenId: String = "",
     val canteenName: String = "",
     val canteenImageKey: String = "",
+    val canteenAddress : String = "",
     val name: String = "",
     val imageKey: String = "",
     val price: Double = 0.0,

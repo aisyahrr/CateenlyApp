@@ -56,7 +56,9 @@ import com.example.canteenlyapp.ui.components.OrderSummarySection
 import com.example.canteenlyapp.ui.components.PaymentMethodSection
 import android.widget.Toast
 import androidx.compose.ui.platform.LocalContext
+import com.example.canteenlyapp.data.model.AppNotification
 import com.example.canteenlyapp.data.model.Order
+import com.example.canteenlyapp.data.repository.NotificationRepository
 import com.example.canteenlyapp.data.repository.OrderRepository
 import com.example.canteenlyapp.ui.navigation.Screen
 
@@ -132,6 +134,8 @@ fun CheckoutContent(
     var paymentMethod by remember {
         mutableStateOf("Cash")
     }
+    val generatedOrderNumber =
+        (System.currentTimeMillis() % 100000).toInt()
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -354,10 +358,15 @@ fun CheckoutContent(
                             orderSubtotal * 0.1
 
                         val order = Order(
+
                             userId = currentUser?.uid ?: "",
+                            orderNumber = generatedOrderNumber,
+                            customerName = currentUser?.fullName ?: "",
+                            customerAddress = currentUser?.address ?: "",
 
                             canteenId = canteenId,
                             canteenName = firstItem.canteenName,
+                            canteenAddress = firstItem.canteenAddress,
                             canteenImageKey = firstItem.canteenImageKey,
 
                             items = items,
@@ -371,23 +380,37 @@ fun CheckoutContent(
                             paymentMethod = paymentMethod
                         )
 
-                        OrderRepository.createOrder(order) { success ->
+                        OrderRepository.createOrder(order) { success, orderId ->
 
                             if (success) {
 
                                 CartRepository.clearSelectedItems()
 
-                                navController.navigate(
-                                    Screen.OrderSuccess.route
+                                NotificationRepository.addNotification(
+                                    ownerId = order.canteenId,
+                                    notif = AppNotification(
+                                        title = "new order in",
+                                        message = "Order #${order.orderNumber} • $${
+                                            "%.2f".format(
+                                                order.total
+                                            )
+                                        }",
+                                        orderId = orderId,
+                                        type = "new_order"
+                                    )
                                 )
 
+                                if (order.paymentMethod == "Qris") {
+                                    navController.navigate(
+                                        Screen.QrisPayment.createRoute(orderId)
+                                    )
+                                } else {
+                                    navController.navigate(
+                                        Screen.OrderSuccess.createRoute(orderId)
+                                    )
+                                }
                             } else {
-
-                                Toast.makeText(
-                                    context,
-                                    "Failed to place order",
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                                Toast.makeText(context, "Failed to place order", Toast.LENGTH_SHORT).show()
                             }
                         }
                     }

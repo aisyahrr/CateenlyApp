@@ -4,7 +4,7 @@ data class Menu(
     val id: String = "",
     val canteenId: String = "",
     val canteenName: String = "",
-
+    val canteenAddress: String = "",
     val name: String = "",
     val category: String = "",
     val description: String = "",

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ConfirmationNumber
+import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.ShoppingBag
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -28,9 +29,9 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun PointSummaryCard(
-    points: String = "Rp. 20.000",
-    totalOrder: Int = 2,
-    totalCoupon: Int = 0
+    points: String,
+    totalOrder: Int,
+    memberLevel: String
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -44,7 +45,7 @@ fun PointSummaryCard(
         ) {
 
             Text(
-                text = "Tasty Point",
+                text = "Tasty Points",
                 color = Color.White,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold
@@ -60,7 +61,7 @@ fun PointSummaryCard(
             )
 
             Text(
-                text = "Semakin banyak poin, semakin hemat belanja.",
+                text = "Earn more points and unlock better rewards.",
                 color = Color(0xFFFFD4B0),
                 fontSize = 12.sp,
                 fontStyle = FontStyle.Italic
@@ -83,16 +84,16 @@ fun PointSummaryCard(
 
                     SummaryItem(
                         modifier = Modifier.weight(1f),
-                        title = "Order",
-                        value = "Tersedia : $totalOrder",
+                        title = "Orders",
+                        value = "$totalOrder completed",
                         icon = Icons.Default.ShoppingBag
                     )
 
                     SummaryItem(
                         modifier = Modifier.weight(1f),
-                        title = "Coupon",
-                        value = "Tersedia : $totalCoupon",
-                        icon = Icons.Default.ConfirmationNumber
+                        title = "Level",
+                        value = memberLevel,
+                        icon = Icons.Default.EmojiEvents
                     )
                 }
             }

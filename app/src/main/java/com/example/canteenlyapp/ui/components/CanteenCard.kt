@@ -116,10 +116,11 @@ fun CanteenCard(
                         .padding(horizontal = 10.dp, vertical = 5.dp)
                 ) {
                     Text(
-                        text = if (canteen.isAvailable) "Available" else "Closed",
+                        text = if (canteen.isAvailable) "Open" else "Closed",
                         color = textColor,
                         fontSize = 12.sp,
                     )
+
                 }
             }
             Spacer(modifier = Modifier.height(3.dp))

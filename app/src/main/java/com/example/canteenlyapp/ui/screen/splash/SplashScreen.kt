@@ -10,6 +10,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavController
 import com.example.canteenlyapp.R
+import com.example.canteenlyapp.data.model.User
 import com.example.canteenlyapp.ui.navigation.Screen
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
@@ -29,13 +30,7 @@ fun SplashScreen(
             FirebaseAuth.getInstance()
                 .currentUser
 
-        if (currentUser == null) {
-
-            navController.navigate(
-                Screen.Onboarding.route
-            )
-
-        } else {
+        if (currentUser != null) {
 
             val snapshot =
                 FirebaseDatabase
@@ -48,9 +43,35 @@ fun SplashScreen(
 
             if (snapshot.exists()) {
 
-                navController.navigate(
-                    Screen.Main.route
-                )
+                val user =
+                    snapshot.getValue(
+                        User::class.java
+                    )
+
+                if (user?.role == "merchant") {
+
+                    navController.navigate(
+                        Screen.Merchant.route
+                    ) {
+                        popUpTo(
+                            Screen.Splash.route
+                        ) {
+                            inclusive = true
+                        }
+                    }
+
+                } else {
+
+                    navController.navigate(
+                        Screen.Main.route
+                    ) {
+                        popUpTo(
+                            Screen.Splash.route
+                        ) {
+                            inclusive = true
+                        }
+                    }
+                }
 
             } else {
 
@@ -62,9 +83,20 @@ fun SplashScreen(
                     Screen.Login.route
                 )
             }
+
+        } else {
+
+            navController.navigate(
+                Screen.Login.route
+            ) {
+                popUpTo(
+                    Screen.Splash.route
+                ) {
+                    inclusive = true
+                }
+            }
         }
     }
-
     Box(
         modifier = Modifier.fillMaxSize()
     ) {

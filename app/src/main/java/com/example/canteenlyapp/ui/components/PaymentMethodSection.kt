@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBalance
-import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material.icons.filled.Money
 import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material.icons.filled.RadioButtonChecked
@@ -34,9 +33,7 @@ fun PaymentMethodSection(
         title = "Cash",
         icon = Icons.Default.Money,
         isSelected = selectedMethod == "Cash",
-        onClick = {
-            onMethodSelected("Cash")
-        }
+        onClick = { onMethodSelected("Cash") }
     )
 
     HorizontalDivider(
@@ -47,10 +44,8 @@ fun PaymentMethodSection(
     PaymentMethodItem(
         title = "Qris",
         icon = Icons.Default.QrCode,
-        isSelected = selectedMethod == "Credit Card",
-        onClick = {
-            onMethodSelected("Credit Card")
-        }
+        isSelected = selectedMethod == "Qris",
+        onClick = { onMethodSelected("Qris") }
     )
 
     HorizontalDivider(
@@ -62,11 +57,10 @@ fun PaymentMethodSection(
         title = "Bank Transfer",
         icon = Icons.Default.AccountBalance,
         isSelected = selectedMethod == "Bank Transfer",
-        onClick = {
-            onMethodSelected("Bank Transfer")
-        }
+        onClick = { onMethodSelected("Bank Transfer") }
     )
 }
+
 @Composable
 fun PaymentMethodItem(
     title: String,
@@ -78,9 +72,7 @@ fun PaymentMethodItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable {
-                onClick()
-            }
+            .clickable { onClick() }
             .padding(vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -91,9 +83,7 @@ fun PaymentMethodItem(
             tint = Color(0xFFFF9800)
         )
 
-        Spacer(
-            modifier = Modifier.width(12.dp)
-        )
+        Spacer(modifier = Modifier.width(12.dp))
 
         Text(
             text = title,
@@ -108,14 +98,8 @@ fun PaymentMethodItem(
                     Icons.Default.RadioButtonChecked
                 else
                     Icons.Default.RadioButtonUnchecked,
-
             contentDescription = null,
-
-            tint =
-                if (isSelected)
-                    Color(0xFFFF9800)
-                else
-                    Color.Gray
+            tint = if (isSelected) Color(0xFFFF9800) else Color.Gray
         )
     }
 }

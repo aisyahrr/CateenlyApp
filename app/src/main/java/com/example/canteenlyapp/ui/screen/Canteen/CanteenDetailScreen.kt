@@ -1,9 +1,11 @@
 package com.example.canteenlyapp.ui.screen.Canteen
 
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import com.example.canteenlyapp.data.repository.FoodRepository
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
@@ -61,6 +63,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import com.example.canteenlyapp.data.model.CartItem
 import com.example.canteenlyapp.data.model.MenuOptionGroup
@@ -100,6 +103,8 @@ fun CanteenDetailScreen(
     val authRepository = remember {
         AuthRepository()
     }
+
+    val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val canteens =
         remember {
@@ -181,6 +186,7 @@ fun CanteenDetailScreen(
     var showCartSheet by remember {
         mutableStateOf(false)
     }
+
     if (canteen == null) {
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -401,38 +407,13 @@ fun CanteenDetailScreen(
                             )
 
                             Text(
-                                text = currentUser?.address
+                                text = canteen?.address
                                     ?.takeIf { it.isNotBlank() }
                                     ?: "Set delivery address",
                                 color = Color.Gray,
                                 style = MaterialTheme.typography.bodySmall,
                             )
                         }
-                    }
-
-                    Button(
-                        onClick = {
-                            showAddressSheet = true
-                        },
-
-                        modifier = Modifier.height(30.dp),
-
-                        contentPadding = PaddingValues(
-                            horizontal = 12.dp,
-                            vertical = 0.dp
-                        ),
-
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFFFF7A00)
-                        ),
-
-                        shape = RoundedCornerShape(6.dp)
-                    ) {
-
-                        Text(
-                            text = "Change",
-                            fontSize = 11.sp
-                        )
                     }
                 }
 
@@ -603,6 +584,7 @@ fun CanteenDetailScreen(
                         canteenId = menu.canteenId,
                         canteenName = canteen?.title ?: "",
                         canteenImageKey = canteen?.imageKey ?: "",
+                        canteenAddress = canteen?.address ?: "",
                         name = menu.name,
                         imageKey = menu.imageKey,
                         price = menu.price,
@@ -611,6 +593,12 @@ fun CanteenDetailScreen(
                         selectedOptions = selectedOptions
                     )
                 )
+
+                Toast.makeText(
+                    context,
+                    "${menu.name} added to cart 🛒",
+                    Toast.LENGTH_SHORT
+                ).show()
 
                 showCartSheet = false
             }

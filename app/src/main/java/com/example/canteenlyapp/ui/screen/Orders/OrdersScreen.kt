@@ -22,6 +22,7 @@ import com.example.canteenlyapp.data.repository.OrderRepository
 import com.example.canteenlyapp.ui.components.DashedDivider
 import com.example.canteenlyapp.ui.components.OrderCard
 import com.example.canteenlyapp.ui.components.OrderFilterBar
+import com.example.canteenlyapp.ui.navigation.Screen
 
 @Composable
 fun OrdersScreen(
@@ -56,7 +57,11 @@ fun OrdersScreen(
                 "Cancelled"
             )
         }
-
+    val displayedOrders =
+        if (selectedTab == "Active")
+            activeOrders
+        else
+            historyOrders
     LaunchedEffect(Unit) {
 
         val currentUser =
@@ -130,76 +135,21 @@ fun OrdersScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
 
-            if (
-                selectedTab == "Active" &&
-                activeOrders.isEmpty()
-            ) {
+            items(displayedOrders) { order ->
 
-                item {
+                OrderCard(
+                    order = order,
 
-                    Box(
-                        modifier = Modifier
-                            .fillParentMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
+                    isHistory = selectedTab == "History",
 
-                        Text(
-                            text = "No active orders",
-                            color = Color.Gray
+                    onClick = {
+
+                        navController.navigate(
+                            Screen.CustomerOrderDetail
+                                .createRoute(order.id)
                         )
                     }
-                }
-
-            } else if (
-                selectedTab == "History" &&
-                historyOrders.isEmpty()
-            ) {
-
-                item {
-
-                    Box(
-                        modifier = Modifier
-                            .fillParentMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-
-                        Text(
-                            text = "No order history",
-                            color = Color.Gray
-                        )
-                    }
-                }
-
-            } else {
-
-                if (selectedTab == "Active") {
-
-                    items(activeOrders) { order ->
-
-                        OrderCard(
-                            order = order,
-                            isHistory = false,
-                            onClick = {
-                                // TODO:
-                                // navigate detail order
-                            }
-                        )
-                    }
-
-                } else {
-
-                    items(historyOrders) { order ->
-
-                        OrderCard(
-                            order = order,
-                            isHistory = true,
-                            onClick = {
-                                // TODO:
-                                // review order
-                            }
-                        )
-                    }
-                }
+                )
             }
         }
 

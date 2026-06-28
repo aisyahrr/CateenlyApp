@@ -90,6 +90,21 @@ class AuthRepository {
             null
         }
     }
+
+    suspend fun getCurrentMerchant(): User? {
+
+        val user = getCurrentUser()
+
+        return if (user?.role == "merchant") {
+            user
+        } else {
+            null
+        }
+    }
+
+    fun getCurrentUid(): String? {
+        return auth.currentUser?.uid
+    }
     suspend fun updateFullName(
         fullName: String
     ): Result<Unit> {
@@ -138,6 +153,7 @@ class AuthRepository {
             Result.failure(e)
         }
     }
+
     fun logout() {
         FirebaseAuth.getInstance().signOut()
     }

@@ -39,7 +39,7 @@ fun ChangeAddressBottomSheet(
     ) {
 
         Text(
-            text = "Delivery Address",
+            text = "Address",
             color = Color.White,
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold
